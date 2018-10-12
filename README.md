@@ -53,7 +53,7 @@ db.put('name', 'Level', function (err) {
 
 ## API
 
-* [<code><b>join()</b></code>](#join)
+* [`join()`](#join)
 * [<code><b>leave()</b></code>](#leave)
 * [<code><b>put()</b></code>](#put)
 * [<code><b>get()</b></code>](#get)
