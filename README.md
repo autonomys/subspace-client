@@ -6,7 +6,6 @@ Subspace is a decentralized NoSQL database, or key-value store, written entirely
 To learn more about how the subspace protocol works browse the [FAQ](https://subspace.network/faq) or read the technical [white paper](https://subspace.github.io/paper/).
 
 * [Usage](#usage)
-* [Design](#design)
 * [API](#api)
 * [Promise Support](#promise-support)
 * [Events](#events)
@@ -63,19 +62,6 @@ client.join((error => {
 
 ```
 
-## Design
-
-### Mutable vs Immutable Storage Contracts
-
-Cost, API, and encoding
-
-### Databse & Record Schema
-
-Encryption, sharding, replication, and 
-
-### Authentication & Authorization
-
-
 ## API
 
 * **[`client`](#client)**
@@ -88,20 +74,46 @@ Encryption, sharding, replication, and
 
 <a name="client"></a>
 ### `const client = new Subspace([options])`
+Creates a new `client` instance that is used to interface with the subspace network.
+
+* `options`: optional arguments to set identity and configure connection parameters
+
+If no options are passed to the constructor a new subspace identity will be generated allowing the client to `connect` and `get` records from the subspace network. If a valid `contract_id` is provided the client will be able to `put` new record and `rev` and `del` records they own. Remaining options are purely optional, with suitable defaulst provided. 
 
 ```js
-
+let options = {
+  contract: '5cd2ac...',     // optional id for storage contract, obtained through the subspace console
+  name: 'Gavin Belson',      // optional name to associate with profile
+  email: 'gavin@hooli.com',  // optional email to associate with profile
+  passphrase: 'box_three',   // optional passhprase to associate with profile
+  gateway_nodes: [],         // optional, overirdes the default gateways for bootstrapping onto subspace
+  gateway_count: 1,          // optional, default is 1
+  delegated: true,           // optional, will delegate put/get of replicas to a first host for improved performance
+}
 ```
 
 <a name="join"></a>
-### `client.join([, callback])`
+### `async client.join([, callback])`
+Joins the subspace network by connecting to one or more gateway nodes, authenticating your public key, and fetching the latest tracker. 
+
+Returns a callback or promise on authentication with the first gateway. 
+Emit a `connected` event when fully authenticated with all gateway nodes and tracker sync is complete.
+Returns an error if failed
 
 ```js
+client.connect(error => {
+  if (error) throw(error)
+  console.log('Authenticated with a gateway node')
+})
+
+client.on('connected', () => {
+  console.log('Authenticated with all gateway nodes and fetched the tracker
+})
 
 ```
 
 <a name="put"></a>
-### `client.put(value: any][, callback])`
+### `async client.put(value: any][, callback])`
 
 ```js
 
@@ -109,7 +121,7 @@ Encryption, sharding, replication, and
 
 
 <a name="get"></a>
-### `client.get(key: string][, callback])`
+### `async client.get(key: string][, callback])`
 `get()` is the primary method for fetching data from the store. The `key` can be of any type. If it doesn't exist in the store then the callback or promise will receive an error. A not-found err object will be of type `'NotFoundError'` so you can `err.type == 'NotFoundError'` or you can perform a truthy test on the property `err.notFound`.
 
 ```js
@@ -132,23 +144,35 @@ db.get('foo', function (err, value) {
 If no callback is passed, a promise is returned.
 
 <a name="rev"></a>
-### `client.rev(value: any][, callback])`
+### `async client.rev(value: any][, callback])`
 
 ```js
 
 ```
 
 <a name="del"></a>
-### `client.del(key: string][, callback])`
+### `async client.del(key: string][, callback])`
 
 ```js
 
 ```
 
 <a name="leave"></a>
-### `client.leave([, callback])`
+### `async client.leave([, callback])`
+Leaves the subspace network by gracefully disconnecting from all nodes you are directly connected to. 
+
+Returns a callback or promise on send of all disconnect notifications. 
+Emits a `disconnected` event when all connections are fully closed.
 
 ```js
+client.disconnect(error => {
+  if (error) throw(error)
+  console.log('Notified all peers I am leaving')
+})
+
+client.on('disconnected', () => {
+  console.log('All peers connections have been closed')
+})
 
 ```
 
