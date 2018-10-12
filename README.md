@@ -6,6 +6,7 @@ Subspace is a decentralized NoSQL database, or key-value store, written entirely
 To learn more about how the subspace protocol works browse the [FAQ](https://subspace.network/faq) or read the technical [white paper](https://subspace.github.io/paper/).
 
 * [Usage](#usage)
+* [Design](#design)
 * [API](#api)
 * [Promise Support](#promise-support)
 * [Events](#events)
@@ -61,6 +62,19 @@ client.join((error => {
 })
 
 ```
+
+## Design
+
+### Mutable vs Immutable Storage Contracts
+
+Cost, API, and encoding
+
+### Databse & Record Schema
+
+Encryption, sharding, replication, and 
+
+### Authentication & Authorization
+
 
 ## API
 
@@ -140,17 +154,16 @@ If no callback is passed, a promise is returned.
 
 ## Promise Support
 
-subspace-cleint ships with native Promise support out of the box.
+subspace-client ships with native Promise support out of the box.
 
 Each function taking a callback also can be used as a promise, if the callback is omitted. This applies for:
 
-client.join()
-client.get(key)
-client.put(key, value)
-client.rev(key, value)
-client.del(key)
-client.leave()
-
+* `client.join()`
+* `client.get(key)`
+* `client.put(key, value)`
+* `client.rev(key, value)`
+* `client.del(key)`
+* `client.leave()`
 
 ### Traditional callback syntax
 
@@ -158,21 +171,16 @@ client.leave()
 
 client.join(error => {
   if (error) throw(error)
-
   console.log('connected to subspace network')
   
   client.put('hello subspace', (error, record) => {
     if (error) throw(error)
-
     console.log('put a new record to remote host')
     
     client.get(record.key, (error, value) => {
       if (error) throw(error)
-
       assert(record.value === value)
-      
       console.log('got same record back from remote host ')
-      
       return record
     })
   })
