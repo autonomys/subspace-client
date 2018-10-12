@@ -93,7 +93,7 @@ let options = {
 ```
 
 <a name="join"></a>
-### `async client.join([, callback])`
+### `async client.join([callback])`
 Joins the subspace network by connecting to one or more gateway nodes, authenticating your public key, and fetching the latest tracker. 
 
 Returns a callback or promise on authentication with the first gateway. 
@@ -107,53 +107,123 @@ client.connect(error => {
 })
 
 client.on('connected', () => {
-  console.log('Authenticated with all gateway nodes and fetched the tracker
+  console.log('Authenticated with all gateway nodes and fetched the tracker')
 })
 
 ```
 
 <a name="put"></a>
-### `async client.put(value: any][, callback])`
+### `async client.put(value: any][, callback]): record: object`
+Writes some data to the subspace network. Data is encoded and encrypted based on the clients public key. Requires a signature from a valid data contract private key. Record type (mutable or immutable) is based on the underlying contract. Resolves once the record is written to the first host. Emits an event when the record is fully replicated on SSDB or if error during replication.
 
+* `value` - the data to be stored. Valid types include boolean, number, string, array, json, binary, and buffer.
+
+Returns the record object, a key-value pair with the derived key and value in the same format it was provided. 
+Returns an error if failed. 
+Emits an event when fully resolved.
+
+Example
 ```js
+client.put('hello subspace', (error, record) => {
+  if (error) throw(error)
+  
+  console.log('Record successfully put to subspace')
+  console.log(record)
+    
+    // {
+    //   key: '678e749011f8a911f011e105c618db898a71f8759929cc9a9ebcfe7b125870ee',
+    //   value: 'hello subspace'
+    // }
+})
+
+client.on('put', (record, hosts) => {
+  console.log(`New record with id: ${record.key} has been fully replicated to all hosts, including: `)
+  hosts.forEach(hostId => console.log(`\n ${hostId}`))
+})
 
 ```
-
 
 <a name="get"></a>
-### `async client.get(key: string][, callback])`
-`get()` is the primary method for fetching data from the store. The `key` can be of any type. If it doesn't exist in the store then the callback or promise will receive an error. A not-found err object will be of type `'NotFoundError'` so you can `err.type == 'NotFoundError'` or you can perform a truthy test on the property `err.notFound`.
+### `async client.get(key: string][, callback]): value: any`
+Retrieves some data from the subspace network with a given record key (id). Data is decoded and decrypted using the clients private key. No data contract is required to `get` records. Resolves once the record is retrieved from the first host. Emits an event when the record is fully retrieved and validated or if error during replication.
 
+* `key` - 32 byte record key as a hex encoded string 
+
+Returns the record value in the same format it was provided. 
+Returns an error if failed. 
+Emits an event when fully resolved.
+
+Example
 ```js
-db.get('foo', function (err, value) {
-  if (err) {
-    if (err.notFound) {
-      // handle a 'NotFoundError' here
-      return
-    }
-    // I/O or other error, pass it up the callback chain
-    return callback(err)
-  }
-
-  // .. handle `value` here
+client.get('678e749011f8a911f011e105c618db898a71f8759929cc9a9ebcfe7b125870ee', (error, value) => {
+  if (error) throw(error)
+  
+  console.log('Succesfully got value from subspace')
+  console.log(value)
+    
+    // 'hello subspace'
 })
+
+client.on('get', (record, hosts) => {
+  console.log(`Existing record with id: ${record.key} has been fully retrieved to all hosts, including: `)
+  hosts.forEach(hostId => console.log(`\n ${hostId}`))
+})
+
 ```
 
-`options` is passed on to the underlying store.
-
-If no callback is passed, a promise is returned.
-
 <a name="rev"></a>
-### `async client.rev(value: any][, callback])`
+### `async client.rev(key: string, value: any][, callback]): record: object`
+Updates a mutable record. Resolves once the record is validated and replicated to the first valid host. Emits an event when the update is fully replicated on SSDB or if error during replication.
 
+* `key` - 32 byte record key as a hex encoded string 
+* `value` - the new value to be assigned to this key. Does not have be the same type as previous value. Valid types include boolean, number, string, array, json, binary, and buffer.
+
+Returns the new record object, a key-value pair with the same key and updated value in the same format it was provided. 
+Returns an error if failed. 
+Emits an event when fully resolved.
+
+Example
 ```js
+
+client.rev('goodbye subspace', (error, record) => {
+  if (error) throw(error)
+  
+  console.log('Record successfully updated on subspace')
+  console.log(record)
+    
+    // {
+    //   key: '678e749011f8a911f011e105c618db898a71f8759929cc9a9ebcfe7b125870ee',
+    //   value: 'goodbye subspace'
+    // }
+})
+
+client.on('rev', (record, hosts) => {
+  console.log(`Update to existing record with id: ${record.key} has been fully replicated to all hosts, including: `)
+  hosts.forEach(hostId => console.log(`\n ${hostId}`))
+})
 
 ```
 
 <a name="del"></a>
-### `async client.del(key: string][, callback])`
+### `async client.del(key: string][, callback])` : 
+Deletes a mutable record from a mutable contract. Resolves once the record is deleted from the first host. Emits an event when the delete is fully replicated on SSDB or if error replication.
 
+* `key` - 32 byte record key as a hex encoded string 
+
+Returns an error if failed. 
+Emits an event when fully resolved.
+
+Example
 ```js
+client.del('678e749011f8a911f011e105c618db898a71f8759929cc9a9ebcfe7b125870ee', (error) => {
+  if (error) throw(error)
+  console.log('Succesfully started record deletion from subspace')
+})
+
+client.on('del', (record, hosts) => {
+  console.log(`Existing record with id: ${record.key} has been fully deleted from all hosts, including: `)
+  hosts.forEach(hostId => console.log(`\n ${hostId}`))
+})
 
 ```
 
