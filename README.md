@@ -13,18 +13,6 @@ To learn more about how the subspace protocol works browse the [FAQ](https://sub
 
 ## Usage
 
-Install with NPM
-
-```bash
-npm install subspace-client
-```
-
-Fetch from a CDN
-
-```html
-<script src="https://cdnjs.cloudflare.com/ajax/libs/subspace-client.js/1.0/subspace-client.min.js"></script>
-```
-
 Example workflow
 
 ```js
