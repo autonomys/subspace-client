@@ -101,7 +101,7 @@ client.on('connected', () => {
 ```
 
 <a name="put"></a>
-### `async client.put(value: any][, callback]): record: object`
+### `async client.put(value: any [, callback]): record: object`
 Writes some data to the subspace network. Data is encoded and encrypted based on the clients public key. Requires a signature from a valid data contract private key. Record type (mutable or immutable) is based on the underlying contract. Resolves once the record is written to the first host. Emits an event when the record is fully replicated on SSDB or if error during replication.
 
 * `value` - the data to be stored. Valid types include boolean, number, string, array, json, binary, and buffer.
@@ -132,7 +132,7 @@ client.on('put', (record, hosts) => {
 ```
 
 <a name="get"></a>
-### `async client.get(key: string][, callback]): value: any`
+### `async client.get(key: string [, callback]): value: any`
 Retrieves some data from the subspace network with a given record key (id). Data is decoded and decrypted using the clients private key. No data contract is required to `get` records. Resolves once the record is retrieved from the first host. Emits an event when the record is fully retrieved and validated or if error during replication.
 
 * `key` - 32 byte record key as a hex encoded string 
@@ -160,7 +160,7 @@ client.on('get', (record, hosts) => {
 ```
 
 <a name="rev"></a>
-### `async client.rev(key: string, value: any][, callback]): record: object`
+### `async client.rev(key: string, value: any [, callback]): record: object`
 Updates a mutable record. Resolves once the record is validated and replicated to the first valid host. Emits an event when the update is fully replicated on SSDB or if error during replication.
 
 * `key` - 32 byte record key as a hex encoded string 
@@ -193,7 +193,7 @@ client.on('rev', (record, hosts) => {
 ```
 
 <a name="del"></a>
-### `async client.del(key: string][, callback])` : 
+### `async client.del(key: string [, callback])` 
 Deletes a mutable record from a mutable contract. Resolves once the record is deleted from the first host. Emits an event when the delete is fully replicated on SSDB or if error replication.
 
 * `key` - 32 byte record key as a hex encoded string 
@@ -216,7 +216,7 @@ client.on('del', (record, hosts) => {
 ```
 
 <a name="leave"></a>
-### `async client.leave([, callback])`
+### `async client.leave([callback])`
 Leaves the subspace network by gracefully disconnecting from all nodes you are directly connected to. 
 
 Returns a callback or promise on send of all disconnect notifications. 
@@ -289,7 +289,6 @@ client.join()
     return(record)
   })
   .catch(error => {
-    console.log('Subspace Error')
     throw(error)
   })
 
@@ -314,7 +313,6 @@ const testSubspace = async () => {
     return record
   }
   catch (error) {
-    console.log('Subspace Error')
     throw(error)
   }
 }
